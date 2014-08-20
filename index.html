@@ -1,9 +1,9 @@
-<!-- // code to start the server: ruby -run -e httpd . -p 6000 -->
+<!-- // code to start the server: ruby -run -e httpd . -p 1234 -->
 <!DOCTYPE html>
 <meta charset="utf-8">
 
 <style>
-  /*CSS Styling Here.*/
+  /* CSS Styling, if using */
 </style>
 
 <body>
@@ -86,30 +86,6 @@
        .attr('transform', function(locations) {       
          return 'translate(' + projection([locations[1], locations[0]]) + ')';
        });
-
-    var startingPoint = {"lat": locations[0][0], "lon": locations[0][1]};
-    var endingPoint = {"lat": locations[1][0], "lon": locations[1][1]};
-    var coordinates = [startingPoint, endingPoint];
-        
-    // create the new path between two locations
-    // this function can be done outside the function - just need to call it properly.
-    var newLine = d3.svg.line()
-                        .interpolate('cardinal')
-                        .x(function(d) {
-                          return projection([d.lon, d.lat])[0];
-                        })
-                        .y(function(d) {
-                          return projection([d.lon, d.lat])[1];
-                        });
-
-    // create path to be used                    
-    var NYCtoSF = svg.append("path")
-                     .attr("class","path")
-                     .attr("stroke-width", 2)
-                     .attr("stroke", "black")
-                     .transition()
-                     .delay(1000)
-                     .attr("d", newLine(coordinates)); 
   });
   </script>
 </body>
