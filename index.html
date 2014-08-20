@@ -1,0 +1,115 @@
+<!-- // code to start the server: ruby -run -e httpd . -p 6000 -->
+<!DOCTYPE html>
+<meta charset="utf-8">
+
+<style>
+  /*CSS Styling Here.*/
+</style>
+
+<body>
+  <!-- Add D3 and TopoJSON libraries. -->
+  <script src="http://d3js.org/d3.v3.min.js"></script>
+  <script src="http://d3js.org/topojson.v1.min.js"></script>
+
+  <!-- Add D3 Scripting here. -->
+  <script>
+
+  // Use D3's JSON method to load in TopoJSON data we just converted.
+  // Check out console to see what's in there!
+  d3.json("convertedstates.json", function(error, states) {
+    if (error) {
+      return console.error(error);
+    } else {
+      console.log(states);
+    }
+
+    // Add canvas.
+    // Define width and height for SVG canvas.
+    var width = 960;
+    var height = 1160;
+
+    // Append SVG canvas to the DOM.
+    var svg = d3.select("body").append("svg")
+        .attr("width", width)
+        .attr("height", height);
+
+    // Define states.
+    // Assign the states variable to the GeoJSON feature collection for the specified topology object.
+    // While TopoJSON data is stored more efficiently, we need to convert back to GeoJSON for display purposes.
+    // Check out console to see your list of 51 (including DC) states!
+    var states = topojson.feature(states, states.objects.states);
+    console.log(states);
+
+    // Create and append projection and paths.
+    // Create a projection suited to fit the US (pre-defined in the library).
+    // A projection simply describes how you want to view your specified area of the globe.
+    // Projections can be rotated, scaled, transformed, etc.
+    // https://github.com/mbostock/d3/wiki/Geo-Projections
+    var projection = d3.geo.albersUsa();
+    
+    // Create a path to draw lines around US border, eventually state borders.
+    // Path generators take in a geometry/features object and create a path to be used for outline rendering.
+    // https://github.com/mbostock/d3/wiki/Geo-Paths
+    var path = d3.geo.path()
+                 .projection(projection);
+    
+    // Append the newly-created path to the map.
+    svg.append("path")
+       .datum(states)
+       .attr("d", path);
+
+    // Create state boundaries and coloring.
+    // Create and select elements for each state.
+    // The states.features data creates a specific path (boundary) for each state which is then appended.
+    svg.selectAll('.states')
+       .data(states.features)
+       .enter()
+       .append('path')
+       .attr('class', function(d) {
+         return 'states' + d.id;
+       })
+       .attr('d', path)
+       // Add in random colors to see state borders.
+       .style("fill",function() {
+         return "hsl(" + Math.random() * 360 + ",100%,50%)";
+       });
+
+    // Show connection between NYC and SF.
+    // Store locations for NYC and San Francisco.
+    var locations = [[40.7127, -74.0059], [37.7833, -122.4167]];
+
+    svg.selectAll('circle')
+       .data(locations)
+       .enter()
+       .append('circle')
+       .attr('r', 20)
+       .attr('transform', function(locations) {       
+         return 'translate(' + projection([locations[1], locations[0]]) + ')';
+       });
+
+    var startingPoint = {"lat": locations[0][0], "lon": locations[0][1]};
+    var endingPoint = {"lat": locations[1][0], "lon": locations[1][1]};
+    var coordinates = [startingPoint, endingPoint];
+        
+    // create the new path between two locations
+    // this function can be done outside the function - just need to call it properly.
+    var newLine = d3.svg.line()
+                        .interpolate('cardinal')
+                        .x(function(d) {
+                          return projection([d.lon, d.lat])[0];
+                        })
+                        .y(function(d) {
+                          return projection([d.lon, d.lat])[1];
+                        });
+
+    // create path to be used                    
+    var NYCtoSF = svg.append("path")
+                     .attr("class","path")
+                     .attr("stroke-width", 2)
+                     .attr("stroke", "black")
+                     .transition()
+                     .delay(1000)
+                     .attr("d", newLine(coordinates)); 
+  });
+  </script>
+</body>
