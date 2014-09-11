@@ -1,4 +1,6 @@
-<!-- // code to start the server: ruby -run -e httpd . -p 1234 -->
+<!-- code to start the server: ruby -run -e httpd . -p 1234 -->
+<!-- Make sure you're in the directory of the project! -->
+
 <!DOCTYPE html>
 <meta charset="utf-8">
 
@@ -14,7 +16,7 @@
   <!-- Add D3 Scripting here. -->
   <script>
 
-  // Use D3's JSON method to load in TopoJSON data we just converted.
+  // Use D3's JSON method to load in TopoJSON data.
   // Check out console to see what's in there!
   d3.json("convertedstates.json", function(error, states) {
     if (error) {
@@ -42,18 +44,20 @@
 
     // Create and append projection and paths.
     // Create a projection suited to fit the US (pre-defined in the library).
-    // A projection simply describes how you want to view your specified area of the globe.
+    // A projection simply describes how you want to view your specified area of the globe.  
+    // Spherical coordinates are projected onto the Cartesian plane (our canvas).
     // Projections can be rotated, scaled, transformed, etc.
     // https://github.com/mbostock/d3/wiki/Geo-Projections
     var projection = d3.geo.albersUsa();
     
-    // Create a path to draw lines around US border, eventually state borders.
+    // Create a path generator to draw lines around US, state borders.
     // Path generators take in a geometry/features object and create a path to be used for outline rendering.
+    // Uses our previously-defined projection.
     // https://github.com/mbostock/d3/wiki/Geo-Paths
     var path = d3.geo.path()
                  .projection(projection);
     
-    // Append the newly-created path to the map.
+    // Append the newly-created path generator to the map.
     svg.append("path")
        .datum(states)
        .attr("d", path);
@@ -64,17 +68,17 @@
     svg.selectAll('.states')
        .data(states.features)
        .enter()
-       .append('path')
+       .append('path')  
        .attr('class', function(d) {
          return 'states' + d.id;
        })
        .attr('d', path)
        // Add in random colors to see state borders.
-       .style("fill",function() {
-         return "hsl(" + Math.random() * 360 + ",100%,50%)";
+       .style("fill", function() {
+                return "hsl(" + Math.random() * 360 + ",100%,50%)";
        });
 
-    // Show connection between NYC and SF.
+    // Show arbitrary data points.
     // Store locations for NYC and San Francisco.
     var locations = [[40.7127, -74.0059], [37.7833, -122.4167]];
 
@@ -82,7 +86,8 @@
        .data(locations)
        .enter()
        .append('circle')
-       .attr('r', 20)
+       .attr('r', 10)
+       .attr('fill', 'black')
        .attr('transform', function(locations) {       
          return 'translate(' + projection([locations[1], locations[0]]) + ')';
        });
