@@ -31,9 +31,10 @@
     var height = 1160;
 
     // Append SVG canvas to the DOM.
-    var svg = d3.select("body").append("svg")
-        .attr("width", width)
-        .attr("height", height);
+    var svg = d3.select("body")
+                .append("svg")
+                .attr("width", width)
+                .attr("height", height);
 
     // Define states.
     // Assign the states variable to the GeoJSON feature collection for the specified topology object.
